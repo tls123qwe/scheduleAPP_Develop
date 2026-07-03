@@ -1,6 +1,6 @@
 package com.example.scheduleapp_develop.service;
 
-import com.example.scheduleapp_develop.dto.*;
+import com.example.scheduleapp_develop.dto.scheduleDto.*;
 import com.example.scheduleapp_develop.entity.Schedule;
 import com.example.scheduleapp_develop.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,9 @@ public class ScheduleService {
                 savedschedule.getId(),
                 savedschedule.getAuthor(),
                 savedschedule.getTitle(),
-                savedschedule.getContents());
+                savedschedule.getContents(),
+                savedschedule.getCreatedAt(),
+                savedschedule.getModifiedAt());
     }
 
     @Transactional(readOnly = true)
@@ -42,7 +44,9 @@ public class ScheduleService {
                 schedule.getId(),
                 schedule.getAuthor(),
                 schedule.getTitle(),
-                schedule.getContents());
+                schedule.getContents(),
+                schedule.getCreatedAt(),
+                schedule.getModifiedAt());
     }
 
     @Transactional(readOnly = true)
@@ -57,7 +61,9 @@ public class ScheduleService {
                     schedule.getId(),
                     schedule.getAuthor(),
                     schedule.getTitle(),
-                    schedule.getContents()));
+                    schedule.getContents(),
+                    schedule.getCreatedAt(),
+                    schedule.getModifiedAt()));
         }
         return dtos;
     }
@@ -66,6 +72,10 @@ public class ScheduleService {
     public UpdateScheduleResponse updateSchedule(Long Id, UpdateScheduleRequest request) {
         Schedule schedule = scheduleRepository.findById(Id).orElseThrow(
                 () -> new IllegalStateException("존재하지 않는 일정입니다."));
+
+        if (!schedule.getPassword().equals(request.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
 
         schedule.updateSchedule(
                 request.getAuthor(),
@@ -76,13 +86,19 @@ public class ScheduleService {
                 schedule.getId(),
                 schedule.getAuthor(),
                 schedule.getTitle(),
-                schedule.getContents());
+                schedule.getContents(),
+                schedule.getCreatedAt(),
+                schedule.getModifiedAt());
     }
 
     @Transactional
     public void deleteSchedule(Long Id, DeleteScheduleRequest request) {
         Schedule schedule = scheduleRepository.findById(Id).orElseThrow(
                 () -> new IllegalStateException("존재하지 않는 일정입니다."));
+
+        if (!schedule.getPassword().equals(request.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
 
         scheduleRepository.deleteById(Id);
     }
