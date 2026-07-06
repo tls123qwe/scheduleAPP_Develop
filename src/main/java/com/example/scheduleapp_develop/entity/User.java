@@ -1,26 +1,38 @@
 package com.example.scheduleapp_develop.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Size;
 
 @Getter
 @Entity
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-
 public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long memberId;
-    private String userName;
-    protected String email;
+    private Long userId;
 
-    public User(String userName, String email) {
+    @Column(nullable = false)
+    private String userName;
+
+    @Email
+    private String email;
+
+    @Size(min = 8)
+    private String password;
+
+
+
+
+    public User(String userName, String email, String password) {
         this.userName = userName;
         this.email = email;
+        this.password = password;
     }
 
     public void updateUser(String userName, String email) {
