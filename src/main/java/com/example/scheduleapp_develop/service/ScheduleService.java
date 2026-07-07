@@ -2,7 +2,9 @@ package com.example.scheduleapp_develop.service;
 
 import com.example.scheduleapp_develop.dto.scheduleDto.*;
 import com.example.scheduleapp_develop.entity.Schedule;
+import com.example.scheduleapp_develop.entity.User;
 import com.example.scheduleapp_develop.repository.ScheduleRepository;
+import com.example.scheduleapp_develop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,11 +17,16 @@ import java.util.List;
 public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public CreateScheduleResponse createSchedule(CreateScheduleRequest request) {
+
+        User user = userRepository.findById(request.getUserId()).orElseThrow(
+                () -> new IllegalArgumentException("없는 유저입니다."));
+
         Schedule schedule = new Schedule(
-                request.getAuthor(),
+                user,
                 request.getTitle(),
                 request.getContents(),
                 request.getPassword());
@@ -28,7 +35,7 @@ public class ScheduleService {
 
         return new CreateScheduleResponse(
                 savedschedule.getId(),
-                savedschedule.getAuthor(),
+                savedschedule.getUser().getUserName(),
                 savedschedule.getTitle(),
                 savedschedule.getContents(),
                 savedschedule.getCreatedAt(),
@@ -37,12 +44,13 @@ public class ScheduleService {
 
     @Transactional(readOnly = true)
     public GetScheduleResponse getOneSchedule(Long Id) {
+
         Schedule schedule = scheduleRepository.findById(Id).orElseThrow(
                 () -> new IllegalStateException("존재하지 않는 일정입니다."));
 
         return new GetScheduleResponse(
                 schedule.getId(),
-                schedule.getAuthor(),
+                schedule.getUser().getUserName(),
                 schedule.getTitle(),
                 schedule.getContents(),
                 schedule.getCreatedAt(),
@@ -59,7 +67,7 @@ public class ScheduleService {
         for (Schedule schedule : schedules) {
             dtos.add(new GetScheduleResponse(
                     schedule.getId(),
-                    schedule.getAuthor(),
+                    schedule.getUser().getUserName(),
                     schedule.getTitle(),
                     schedule.getContents(),
                     schedule.getCreatedAt(),
@@ -70,6 +78,10 @@ public class ScheduleService {
 
     @Transactional
     public UpdateScheduleResponse updateSchedule(Long Id, UpdateScheduleRequest request) {
+
+        User user = userRepository.findById(request.getUserId()).orElseThrow(
+                () -> new IllegalArgumentException("없는 유저 입니다."));
+
         Schedule schedule = scheduleRepository.findById(Id).orElseThrow(
                 () -> new IllegalStateException("존재하지 않는 일정입니다."));
 
@@ -78,13 +90,13 @@ public class ScheduleService {
         }
 
         schedule.updateSchedule(
-                request.getAuthor(),
+                user,
                 request.getTitle(),
                 request.getContents());
 
         return new UpdateScheduleResponse(
                 schedule.getId(),
-                schedule.getAuthor(),
+                schedule.getUser().getUserName(),
                 schedule.getTitle(),
                 schedule.getContents(),
                 schedule.getCreatedAt(),
@@ -101,5 +113,23 @@ public class ScheduleService {
         }
 
         scheduleRepository.deleteById(Id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<GetUserScheduleResponse> getUserSchedules(Long userId) {
+        List<Schedule> schedules = scheduleRepository.findByUserUserId(userId);
+
+        List<GetUserScheduleResponse> dtos = new ArrayList<>();
+
+        for (Schedule schedule : schedules) {
+            dtos.add(new GetUserScheduleResponse(
+                    schedule.getId(),
+                    schedule.getUser().getUserName(),
+                    schedule.getTitle(),
+                    schedule.getContents(),
+                    schedule.getCreatedAt(),
+                    schedule.getModifiedAt()));
+        }
+        return dtos;
     }
 }
