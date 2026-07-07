@@ -22,9 +22,17 @@ public class ScheduleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(scheduleService.createSchedule(request));
     }
 
+
+    // 단순 일정 단건 조회
     @GetMapping("/schedules/{Id}")
     public ResponseEntity<GetScheduleResponse> getOneSchedule(@PathVariable Long Id) {
         return ResponseEntity.status(HttpStatus.OK).body((scheduleService.getOneSchedule(Id)));
+    }
+
+    // 유저별 다건 조회
+    @GetMapping("/schedules/users/{userId}")
+    public ResponseEntity<List<GetUserScheduleResponse>> getUserSchedules(@PathVariable Long userId) {
+        return ResponseEntity.status(HttpStatus.OK).body((scheduleService.getUserSchedules(userId)));
     }
 
     @GetMapping("/schedules")

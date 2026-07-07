@@ -114,4 +114,22 @@ public class ScheduleService {
 
         scheduleRepository.deleteById(Id);
     }
+
+    @Transactional(readOnly = true)
+    public List<GetUserScheduleResponse> getUserSchedules(Long userId) {
+        List<Schedule> schedules = scheduleRepository.findByUserId(userId);
+
+        List<GetUserScheduleResponse> dtos = new ArrayList<>();
+
+        for (Schedule schedule : schedules) {
+            dtos.add(new GetUserScheduleResponse(
+                    schedule.getId(),
+                    schedule.getUser().getUserName(),
+                    schedule.getTitle(),
+                    schedule.getContents(),
+                    schedule.getCreatedAt(),
+                    schedule.getModifiedAt()));
+        }
+        return dtos;
+    }
 }
