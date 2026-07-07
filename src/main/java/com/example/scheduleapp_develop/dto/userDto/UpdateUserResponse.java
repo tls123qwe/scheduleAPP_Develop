@@ -1,8 +1,10 @@
 package com.example.scheduleapp_develop.dto.userDto;
 
-import org.hibernate.sql.Update;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
+
+@Getter
 
 public class UpdateUserResponse {
 

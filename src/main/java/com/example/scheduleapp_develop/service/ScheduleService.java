@@ -117,7 +117,7 @@ public class ScheduleService {
 
     @Transactional(readOnly = true)
     public List<GetUserScheduleResponse> getUserSchedules(Long userId) {
-        List<Schedule> schedules = scheduleRepository.findByUserId(userId);
+        List<Schedule> schedules = scheduleRepository.findByUserUserId(userId);
 
         List<GetUserScheduleResponse> dtos = new ArrayList<>();
 

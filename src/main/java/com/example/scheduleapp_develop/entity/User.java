@@ -23,8 +23,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String userName;
 
-    @OneToMany(mappedBy = "user")
-    private List<Schedule> schedules = new ArrayList<>();
 
     @Email
     private String email;
