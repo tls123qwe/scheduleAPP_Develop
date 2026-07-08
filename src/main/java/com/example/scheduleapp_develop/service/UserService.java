@@ -98,7 +98,6 @@ public class UserService {
         if (!user.getPassword().equals(request.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
-
         userRepository.deleteById(userId);
     }
 }
