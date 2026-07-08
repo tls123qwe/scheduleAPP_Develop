@@ -3,6 +3,7 @@ package com.example.scheduleapp_develop.controller;
 
 import com.example.scheduleapp_develop.dto.scheduleDto.*;
 import com.example.scheduleapp_develop.service.ScheduleService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +19,9 @@ public class ScheduleController {
     private final ScheduleService scheduleService;
 
     @PostMapping("/schedules")
-    public ResponseEntity<CreateScheduleResponse> createSchedule(@RequestBody CreateScheduleRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(scheduleService.createSchedule(request));
+    public ResponseEntity<CreateScheduleResponse> createSchedule(@RequestBody CreateScheduleRequest request,
+                                                                 HttpServletRequest servletRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(scheduleService.createSchedule(request, servletRequest));
     }
 
 
@@ -44,11 +46,12 @@ public class ScheduleController {
     // 일정 수정
     @PutMapping("/schedules/{Id}")
     public ResponseEntity<UpdateScheduleResponse> updateSchedule(@PathVariable Long Id,
-                                                                 @RequestBody UpdateScheduleRequest request){
-        return ResponseEntity.status(HttpStatus.OK).body(scheduleService.updateSchedule(Id, request));
+                                                                 @RequestBody UpdateScheduleRequest request,
+                                                                 HttpServletRequest servletRequest){
+        return ResponseEntity.status(HttpStatus.OK).body(scheduleService.updateSchedule(Id, request, servletRequest));
     }
 
-    // 일저 삭제
+    // 일정 삭제
     @DeleteMapping("/schedules/{Id}")
     public ResponseEntity<Void> deleteSchedule(@PathVariable Long Id,
                                                @RequestBody DeleteScheduleRequest request) {

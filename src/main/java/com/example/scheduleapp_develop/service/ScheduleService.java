@@ -5,6 +5,8 @@ import com.example.scheduleapp_develop.entity.Schedule;
 import com.example.scheduleapp_develop.entity.User;
 import com.example.scheduleapp_develop.repository.ScheduleRepository;
 import com.example.scheduleapp_develop.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,9 +22,23 @@ public class ScheduleService {
     private final UserRepository userRepository;
 
     @Transactional
-    public CreateScheduleResponse createSchedule(CreateScheduleRequest request) {
+    public CreateScheduleResponse createSchedule(CreateScheduleRequest request,
+                                                 HttpServletRequest servletRequest) {
 
-        User user = userRepository.findById(request.getUserId()).orElseThrow(
+        // 기존 세션 호출 없으면 null
+        HttpSession session = servletRequest.getSession(false);
+
+        // 세션이 없다 = 로그인 하지 않음
+        // 세션값이 null이거나 로그인 정보가 null이면 예외 처리
+        if (session == null || session.getAttribute("LOGIN_USER") == null) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+        }
+
+        // 로그인 시 저장해둔 유저ID 가져오기
+        Long userId = (Long) session.getAttribute("LOGIN_USER");
+
+        // 가져온 유저ID로 DB에서 조회
+        User user = userRepository.findById(userId).orElseThrow(
                 () -> new IllegalArgumentException("없는 유저입니다."));
 
         Schedule schedule = new Schedule(
@@ -77,20 +93,37 @@ public class ScheduleService {
     }
 
     @Transactional
-    public UpdateScheduleResponse updateSchedule(Long Id, UpdateScheduleRequest request) {
+    public UpdateScheduleResponse updateSchedule(Long Id,
+                                                 UpdateScheduleRequest request,
+                                                 HttpServletRequest servletRequest) {
 
-        User user = userRepository.findById(request.getUserId()).orElseThrow(
-                () -> new IllegalArgumentException("없는 유저 입니다."));
+        // 기존 세션 호출 없으면 null
+        HttpSession session = servletRequest.getSession(false);
 
+        // 세션이 없다 = 로그인 하지 않음
+        // 세션값이 null이거나 로그인 정보가 null이면 예외 처리
+        if (session == null || session.getAttribute("LOGIN_USER") == null) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+        }
+
+        // 로그인 시 저장해둔 유저ID 가져오기
+        Long loginUserId = (Long) session.getAttribute("LOGIN_USER");
+
+        // 가져온 유저ID로 DB에서 일정 조회
         Schedule schedule = scheduleRepository.findById(Id).orElseThrow(
                 () -> new IllegalStateException("존재하지 않는 일정입니다."));
 
+        // 작성자와 로그인 유저 비교하기
+        if (!schedule.getUser().getUserId().equals(loginUserId)){
+            throw new IllegalArgumentException("작성자만 수정할 수 없습니다.");
+        }
+
+        // 비밀번호 비교
         if (!schedule.getPassword().equals(request.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
         schedule.updateSchedule(
-                user,
                 request.getTitle(),
                 request.getContents());
 
