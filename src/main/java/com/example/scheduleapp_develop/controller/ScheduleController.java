@@ -29,23 +29,26 @@ public class ScheduleController {
         return ResponseEntity.status(HttpStatus.OK).body((scheduleService.getOneSchedule(Id)));
     }
 
-    // 유저별 다건 조회
+    // 유저별 다건 조회 (유저ID 사용)
     @GetMapping("/schedules/users/{userId}")
     public ResponseEntity<List<GetUserScheduleResponse>> getUserSchedules(@PathVariable Long userId) {
         return ResponseEntity.status(HttpStatus.OK).body((scheduleService.getUserSchedules(userId)));
     }
 
+    // 일정 전체 조회
     @GetMapping("/schedules")
     public ResponseEntity<List<GetScheduleResponse>> getAllSchedules() {
         return ResponseEntity.status(HttpStatus.OK).body(scheduleService.getAllSchedules());
     }
 
+    // 일정 수정
     @PutMapping("/schedules/{Id}")
     public ResponseEntity<UpdateScheduleResponse> updateSchedule(@PathVariable Long Id,
                                                                  @RequestBody UpdateScheduleRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(scheduleService.updateSchedule(Id, request));
     }
 
+    // 일저 삭제
     @DeleteMapping("/schedules/{Id}")
     public ResponseEntity<Void> deleteSchedule(@PathVariable Long Id,
                                                @RequestBody DeleteScheduleRequest request) {
