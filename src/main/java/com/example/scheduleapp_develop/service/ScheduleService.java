@@ -1,6 +1,8 @@
 package com.example.scheduleapp_develop.service;
 
+import com.example.scheduleapp_develop.dto.commentDto.GetCommentResponse;
 import com.example.scheduleapp_develop.dto.scheduleDto.*;
+import com.example.scheduleapp_develop.entity.Comment;
 import com.example.scheduleapp_develop.entity.Schedule;
 import com.example.scheduleapp_develop.entity.User;
 import com.example.scheduleapp_develop.repository.ScheduleRepository;
@@ -20,6 +22,22 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
+
+    // 댓글에 대한 리스트
+    private List<GetCommentResponse> toCommentResponse(List<Comment> comments){
+
+        List<GetCommentResponse> responses = new ArrayList<>();
+
+        for (Comment comment : comments) {
+            responses.add(new GetCommentResponse(
+                    comment.getCommentId(),
+                    comment.getUser().getUserName(),
+                    comment.getContents(),
+                    comment.getCreatedAt(),
+                    comment.getModifiedAt()));
+        }
+        return responses;
+    }
 
     @Transactional
     public CreateScheduleResponse createSchedule(CreateScheduleRequest request,
@@ -64,13 +82,16 @@ public class ScheduleService {
         Schedule schedule = scheduleRepository.findById(Id).orElseThrow(
                 () -> new IllegalStateException("존재하지 않는 일정입니다."));
 
+        List<GetCommentResponse> comments = toCommentResponse(schedule.getComments());
+
         return new GetScheduleResponse(
                 schedule.getId(),
                 schedule.getUser().getUserName(),
                 schedule.getTitle(),
                 schedule.getContents(),
                 schedule.getCreatedAt(),
-                schedule.getModifiedAt());
+                schedule.getModifiedAt(),
+                comments);
     }
 
     @Transactional(readOnly = true)
@@ -81,13 +102,16 @@ public class ScheduleService {
         List<GetScheduleResponse> dtos = new ArrayList<>();
 
         for (Schedule schedule : schedules) {
+            List<GetCommentResponse> comments = toCommentResponse((schedule.getComments()));
+
             dtos.add(new GetScheduleResponse(
                     schedule.getId(),
                     schedule.getUser().getUserName(),
                     schedule.getTitle(),
                     schedule.getContents(),
                     schedule.getCreatedAt(),
-                    schedule.getModifiedAt()));
+                    schedule.getModifiedAt(),
+                    comments));
         }
         return dtos;
     }
@@ -155,13 +179,16 @@ public class ScheduleService {
         List<GetUserScheduleResponse> dtos = new ArrayList<>();
 
         for (Schedule schedule : schedules) {
+            List<GetCommentResponse> comments = toCommentResponse(schedule.getComments());
+
             dtos.add(new GetUserScheduleResponse(
                     schedule.getId(),
                     schedule.getUser().getUserName(),
                     schedule.getTitle(),
                     schedule.getContents(),
                     schedule.getCreatedAt(),
-                    schedule.getModifiedAt()));
+                    schedule.getModifiedAt(),
+                    comments));
         }
         return dtos;
     }

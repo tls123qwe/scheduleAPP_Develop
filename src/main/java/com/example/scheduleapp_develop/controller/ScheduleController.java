@@ -32,7 +32,7 @@ public class ScheduleController {
     }
 
     // 유저별 다건 조회 (유저ID 사용)
-    @GetMapping("/schedules/users/{userId}")
+    @GetMapping("/users/{userId}/schedules")
     public ResponseEntity<List<GetUserScheduleResponse>> getUserSchedules(@PathVariable Long userId) {
         return ResponseEntity.status(HttpStatus.OK).body((scheduleService.getUserSchedules(userId)));
     }
