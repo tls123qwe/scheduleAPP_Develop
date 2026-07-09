@@ -158,97 +158,39 @@
 
 ## ERD
 
-```mermaid
-erDiagram
-    USERS ||--o{ SCHEDULES : "작성"
+### User
+| 컬럼명 | 타입 | 설명 |
+|--------|------|------|
+| user_id | BIGINT | PK |
+| user_name | VARCHAR | 사용자 이름 |
+| email | VARCHAR | 이메일 |
+| password | VARCHAR | 비밀번호 |
+| created_at | DATETIME | 생성일 |
+| modified_at | DATETIME | 수정일 |
 
-    USERS {
-        BIGINT user_id PK
-        VARCHAR user_name
-        VARCHAR email
-        VARCHAR password
-        DATETIME created_at
-        DATETIME modified_at
-    }
+### Schedule
+| 컬럼명 | 타입 | 설명 |
+|--------|------|------|
+| schedule_id | BIGINT | PK |
+| user_id | BIGINT | FK (User) |
+| title | VARCHAR | 일정 제목 |
+| contents | VARCHAR | 일정 내용 |
+| password | VARCHAR | 일정 비밀번호 |
+| created_at | DATETIME | 생성일 |
+| modified_at | DATETIME | 수정일 |
 
-    SCHEDULES {
-        BIGINT id PK
-        BIGINT user_id FK
-        VARCHAR title
-        VARCHAR contents
-        VARCHAR password
-        DATETIME created_at
-        DATETIME modified_at
-    }
-```
+### Comment
+| 컬럼명 | 타입 | 설명 |
+|--------|------|------|
+| comment_id | BIGINT | PK |
+| schedule_id | BIGINT | FK (Schedule) |
+| user_id | BIGINT | FK (User) |
+| contents | VARCHAR | 댓글 내용 |
+| created_at | DATETIME | 생성일 |
+| modified_at | DATETIME | 수정일 |
 
----
+## Entity Relationship
 
-## 테이블 관계
-
-### Users - Schedules
-
-- 한 명의 유저는 여러 개의 일정을 작성할 수 있다.
-- 하나의 일정은 한 명의 유저에게 속한다.
-- 관계는 `User(1) : Schedule(N)`이다.
-- `schedules` 테이블은 `user_id` 외래 키를 가진다.
-
----
-
-## 핵심 구현 내용
-
-### 1. 세션 기반 로그인
-
-로그인 성공 시 세션에 로그인한 유저의 ID를 저장한다.
-
-```java
-session.setAttribute("LOGIN_USER", userId);
-```
-
-일정 생성 시에는 요청 Body에서 `userId`를 받지 않고, 세션에서 로그인한 유저 ID를 꺼내 사용한다.
-
-```java
-Long userId = (Long) session.getAttribute("LOGIN_USER");
-```
-
----
-
-### 2. 로그인 유저 기준 일정 생성
-
-일정 생성 시 다음 흐름으로 처리한다.
-
-```text
-로그인 여부 확인
-→ 세션에서 userId 조회
-→ userId로 User 엔티티 조회
-→ Schedule 생성 시 User 연결
-→ 일정 저장
-```
-
----
-
-### 3. 일정 수정 권한 확인
-
-일정 수정 시 로그인한 유저와 일정 작성자가 같은지 확인한다.
-
-```java
-if (!schedule.getUser().getUserId().equals(loginUserId)) {
-    throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
-}
-```
-
-그 후 비밀번호가 일치하는 경우에만 일정을 수정한다.
-
----
-
-## 상태 코드
-
-| 상태 코드 | 의미 |
-|---|---|
-| 200 OK | 조회, 수정, 로그인 성공 |
-| 201 Created | 생성 성공 |
-| 204 No Content | 삭제, 로그아웃 성공 |
-| 400 Bad Request | 잘못된 요청 |
-| 401 Unauthorized | 로그인 필요 |
-| 404 Not Found | 리소스를 찾을 수 없음 |
-
+- User (1) : (N) Schedule
+- User (1) : (N) Comment
+- Schedule (1) : (N) Comment
