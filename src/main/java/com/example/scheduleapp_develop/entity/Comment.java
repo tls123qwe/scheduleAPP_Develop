@@ -5,38 +5,34 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Getter
 @Entity
-@Table(name = "schedules")
+@Table(name = "comments")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Schedule extends BaseEntity {
-
-    @OneToMany(mappedBy = "schedule")
-    private List<Comment> comments = new ArrayList<>();
+public class Comment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long Id;
+    private Long commentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
     private User user;
-    private String title;
-    private String contents;
-    private String password;
 
-    public Schedule(User user, String title, String contents, String password) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "scheduleId")
+    private Schedule schedule;
+
+    private String contents;
+
+    public Comment(User user, Schedule schedule, String contents) {
         this.user = user;
-        this.title = title;
+        this.schedule = schedule;
         this.contents = contents;
-        this.password = password;
     }
 
-    public void updateSchedule(String title, String contents) {
-        this.title = title;
+    public void updateComment(String contents) {
+
         this.contents = contents;
     }
 }

@@ -7,9 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.Size;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Getter
 @Entity
 @Table(name = "users")
@@ -23,14 +20,11 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String userName;
 
-
     @Email
     private String email;
 
     @Size(min = 8)
     private String password;
-
-
 
 
     public User(String userName, String email, String password) {
