@@ -189,8 +189,3 @@
 | created_at | DATETIME | 생성일 |
 | modified_at | DATETIME | 수정일 |
 
-## Entity Relationship
-
-- User (1) : (N) Schedule
-- User (1) : (N) Comment
-- Schedule (1) : (N) Comment
