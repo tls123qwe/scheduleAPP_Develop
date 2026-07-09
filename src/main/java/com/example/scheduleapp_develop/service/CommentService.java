@@ -58,9 +58,9 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<GetCommentResponse> getAllComments() {
+    public List<GetCommentResponse> getAllComments(Long scheduleId) {
 
-        List<Comment> comments = commentRepository.findAll();
+        List<Comment> comments = commentRepository.findByScheduleId(scheduleId);
 
         List<GetCommentResponse> dtos = new ArrayList<>();
 
@@ -76,10 +76,13 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public GetCommentResponse getOneComment(Long commentId) {
+    public GetCommentResponse getOneComment(Long scheduleId, Long commentId) {
+
+        scheduleRepository.findById(scheduleId).orElseThrow(
+                () -> new IllegalArgumentException("없는 일정입니다."));
 
         Comment comment = commentRepository.findById(commentId).orElseThrow(
-                () -> new IllegalArgumentException("없는 일정입니다."));
+                () -> new IllegalArgumentException("없는 댓글입니다."));
 
         return new GetCommentResponse(
                 comment.getCommentId(),
@@ -89,10 +92,13 @@ public class CommentService {
                 comment.getModifiedAt());
     }
 
-    public UpdateCommentResponse updateComment(Long commentId, UpdateCommentRequest request) {
+    public UpdateCommentResponse updateComment(Long scheduleId, Long commentId, UpdateCommentRequest request) {
+
+        scheduleRepository.findById(scheduleId).orElseThrow(
+                () -> new IllegalArgumentException("없는 일정입니다."));
 
         Comment comment = commentRepository.findById(commentId).orElseThrow(
-                () -> new IllegalArgumentException("없는 일정입니다."));
+                () -> new IllegalArgumentException("없는 댓글입니다."));
 
         comment.updateComment(
                 request.getContents());
@@ -106,7 +112,9 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteComment(Long commentId) {
+    public void deleteComment(Long scheduleId, Long commentId) {
+
+        scheduleRepository.findById(scheduleId).orElseThrow(() -> new IllegalArgumentException("없는 일정입니다."));
 
         commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("없는 일정입니다."));
 
